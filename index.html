@@ -1,22 +1,331 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-        <title> My Portfolio </title>
-        <Link rel="stylesheet" href="style.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Provenance — proof of how it was built</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#16181b; --sub:#565b61; --bg:#ffffff; --line:#e3e1dc;
+    --panel:#faf9f7; --verify:#1f7a5c; --verify-bg:#eaf5f0;
+    --check:#b8722a; --check-bg:#fbf2e6;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{background:var(--bg); color:var(--ink); font-family:'Inter',sans-serif; line-height:1.55; -webkit-font-smoothing:antialiased;}
+  h1,h2,h3{font-family:'Source Serif 4',serif; font-weight:600; line-height:1.15;}
+  .mono{font-family:'JetBrains Mono',monospace;}
+  .wrap{max-width:980px; margin:0 auto; padding:0 24px;}
+  a{color:inherit;}
+  button{font-family:inherit; cursor:pointer;}
+
+  nav{border-bottom:1px solid var(--line); position:sticky; top:0; background:#fff; z-index:5;}
+  nav .wrap{display:flex; justify-content:space-between; align-items:center; height:64px;}
+  .brand{font-family:'Source Serif 4',serif; font-weight:600; font-size:1.15rem; text-decoration:none;}
+  .brand span{color:var(--verify);}
+  .navlinks a{color:var(--sub); text-decoration:none; font-size:.92rem; margin-left:26px; padding-bottom:4px;}
+  .navlinks a.active{color:var(--ink); border-bottom:2px solid var(--verify);}
+  .navlinks a:hover{color:var(--ink);}
+
+  header.hero{padding:72px 0 48px;}
+  header.hero h1{font-size:2.5rem; max-width:680px; letter-spacing:-.01em;}
+  header.hero p{color:var(--sub); font-size:1.08rem; max-width:560px; margin-top:18px;}
+  .stats{display:flex; gap:40px; margin-top:38px; flex-wrap:wrap;}
+  .stat b{display:block; font-family:'Source Serif 4',serif; font-size:1.7rem;}
+  .stat span{color:var(--sub); font-size:.83rem;}
+
+  .tryit{display:flex; gap:10px; margin-top:36px; max-width:520px; flex-wrap:wrap;}
+  .tryit input{flex:1; min-width:220px; border:1px solid var(--line); border-radius:7px; padding:11px 13px; font-family:'JetBrains Mono',monospace; font-size:.85rem;}
+  .tryit input:focus{outline:2px solid var(--verify); outline-offset:1px;}
+  .btn{border:1px solid var(--ink); background:var(--ink); color:#fff; border-radius:7px; padding:11px 18px; font-size:.88rem; font-weight:500;}
+  .btn:hover{opacity:.85;}
+  .tryit .status{width:100%; font-size:.8rem; color:var(--verify); min-height:1.2em;}
+
+  section{padding:52px 0;}
+  section.tinted{background:var(--panel); border-top:1px solid var(--line); border-bottom:1px solid var(--line);}
+  .kicker{color:var(--sub); font-size:.95rem; margin-bottom:8px;}
+  .lede{font-size:1.5rem; max-width:620px; margin-bottom:32px;}
+
+  .cards{display:grid; grid-template-columns:repeat(3,1fr); gap:20px;}
+  .rcard{border:1px solid var(--line); border-radius:9px; padding:20px; text-decoration:none; color:var(--ink); display:block; transition:box-shadow .15s, border-color .15s;}
+  .rcard:hover{box-shadow:0 8px 20px rgba(0,0,0,.06); border-color:#d3d0c9;}
+  .rcard h3{font-size:.98rem; font-family:'JetBrains Mono',monospace; font-weight:500;}
+  .rcard .meta{color:var(--sub); font-size:.8rem; margin-top:8px;}
+  .rcard .pill{display:inline-block; margin-top:14px; font-size:.72rem; color:var(--verify); background:var(--verify-bg); padding:3px 9px; border-radius:20px;}
+
+  .steps{display:grid; grid-template-columns:repeat(3,1fr); gap:26px;}
+  .step{border:1px solid var(--line); border-radius:8px; padding:22px;}
+  .step .n{font-family:'Source Serif 4',serif; color:var(--verify); font-size:1.4rem;}
+  .step h3{font-size:1.03rem; margin:8px 0 6px;}
+  .step p{color:var(--sub); font-size:.87rem;}
+
+  .searchbar{display:flex; gap:10px; margin-bottom:26px; max-width:420px;}
+  .searchbar input{flex:1; border:1px solid var(--line); border-radius:7px; padding:10px 12px; font-size:.88rem;}
+  .grid4{display:grid; grid-template-columns:repeat(2,1fr); gap:16px;}
+
+  .crumbs{font-size:.82rem; color:var(--sub); margin-bottom:18px;}
+  .crumbs a{color:var(--sub); text-decoration:underline;}
+  .browser{border:1px solid var(--line); border-radius:10px; overflow:hidden; box-shadow:0 12px 32px rgba(0,0,0,.06);}
+  .chrome{background:var(--panel); border-bottom:1px solid var(--line); padding:10px 14px; display:flex; align-items:center; gap:14px;}
+  .dots{display:flex; gap:6px;}
+  .dots i{width:9px; height:9px; border-radius:50%; background:#d8d6d0; display:block;}
+  .urlbar{flex:1; font-size:.78rem; color:var(--sub); background:#fff; border:1px solid var(--line); border-radius:6px; padding:5px 10px;}
+  .veri{display:grid; grid-template-columns:1fr 1.2fr;}
+  .col-left{padding:26px 24px; border-right:1px solid var(--line);}
+  .col-left h3{font-size:1.05rem; font-family:'JetBrains Mono',monospace; font-weight:500;}
+  .col-left .desc{color:var(--sub); font-size:.85rem; margin-top:4px;}
+  .banner{background:var(--verify-bg); color:var(--verify); border-radius:6px; padding:10px 12px; font-size:.82rem; margin:18px 0;}
+  .banner b{display:block; font-weight:600;}
+  .banner .meta{color:#4d8f76; font-size:.75rem; margin-top:2px;}
+  .figs{display:flex; gap:22px; padding:14px 0; border-top:1px solid var(--line); border-bottom:1px solid var(--line); margin-bottom:18px;}
+  .figs div b{font-family:'Source Serif 4',serif; font-size:1.15rem; display:block;}
+  .figs div span{font-size:.7rem; color:var(--sub);}
+  .actions{display:flex; flex-direction:column; gap:8px;}
+  .actions button{width:100%; text-align:left; border:1px solid var(--line); background:#fff; border-radius:7px; padding:10px 12px; font-size:.82rem;}
+  .actions button:hover{border-color:#c9c6bf;}
+  .badgebox{display:none; margin-top:8px; background:var(--panel); border:1px solid var(--line); border-radius:6px; padding:8px 10px; font-family:'JetBrains Mono',monospace; font-size:.72rem; word-break:break-all;}
+  .badgebox.show{display:block;}
+
+  .col-right{padding:26px 24px;}
+  .timeline{position:relative; padding-left:22px;}
+  .timeline::before{content:"";position:absolute; left:5px; top:6px; bottom:6px; width:1px; background:var(--line);}
+  .tnode{position:relative; margin-bottom:18px;}
+  .tnode::before{content:"";position:absolute; left:-22px; top:4px; width:9px; height:9px; border-radius:50%; border:2px solid var(--check); background:#fff;}
+  .tnode.commit::before, .tnode.test::before{border-color:var(--verify);}
+  .tnode .ts{font-size:.78rem; color:var(--sub); margin-right:8px;}
+  .tag{font-size:.68rem; font-family:'JetBrains Mono',monospace; padding:2px 6px; border-radius:4px;}
+  .tag.commit{background:#e8ede9; color:#3c5a48;}
+  .tag.test{background:#f1eee6; color:#7a6e4f;}
+  .tag.checkpoint{background:var(--check-bg); color:var(--check);}
+  .tnode .msg{margin-top:6px; font-size:.85rem;}
+  .tnode.commit .msg, .tnode.test .msg{font-family:'JetBrains Mono',monospace;}
+  details.qa{margin-top:6px;}
+  details.qa summary{cursor:pointer; font-size:.85rem; color:var(--ink); list-style:none;}
+  details.qa summary::-webkit-details-marker{display:none;}
+  details.qa summary::before{content:"▸ "; color:var(--check);}
+  details.qa[open] summary::before{content:"▾ "; }
+  details.qa .a{background:var(--check-bg); border-radius:6px; padding:11px 13px; margin-top:8px; font-size:.85rem;}
+
+  footer{border-top:1px solid var(--line); padding:34px 0; color:var(--sub); font-size:.85rem;}
+  footer .wrap{display:flex; justify-content:space-between; flex-wrap:wrap; gap:10px;}
+
+  @media (max-width:700px){
+    header.hero h1{font-size:2rem;}
+    .veri{grid-template-columns:1fr;}
+    .col-left{border-right:none; border-bottom:1px solid var(--line);}
+    .steps, .cards, .grid4{grid-template-columns:1fr;}
+    .navlinks a{margin-left:14px;}
+  }
+</style>
 </head>
 <body>
-    <header>
-    <h1>THEE_RAJAT</h>
-    <nav>
-    <a href="about" About(/a)
-    <a href="#projects Projects(/a>
-    <a href="#contact Contact(/a)
-    </nav>
-    </header>
-     
-    <section class="hero">
-        <h1>Rajat</h1>
-      qq
+
+<nav><div class="wrap">
+  <a class="brand" href="#/">provenance<span>.</span></a>
+  <div class="navlinks" id="navlinks">
+    <a href="#/">Home</a><a href="#/explore">Explore</a>
+  </div>
+</div></nav>
+
+<main id="app"></main>
+
+<footer><div class="wrap">
+  <div>Build For Bharat 2.0 Hackathon — Team Command Q · AIT CSE, Chandigarh University</div>
+  <div><a href="mailto:theerajat84@gmail.com">theerajat84@gmail.com</a></div>
+</div></footer>
+
+<script>
+const REPOS = {
+  "auth-service-session-refresh": {
+    name: "auth-service / session-refresh", signed:"22 Sep", events:14, checkpoints:4, span:"2h 40m",
+    desc:"Work log for this branch, recorded as it happened.",
+    log:[
+      {t:"09:14",type:"commit",tag:"commit a3f9c2e",msg:"initial pass: refresh token rotation"},
+      {t:"09:41",type:"test",tag:"test run · 3 failed / 12",msg:"token_refresh_spec, expiry edge cases"},
+      {t:"09:42",type:"checkpoint",q:"What were you trying to do, and why did it fail?",a:"Assumed the old token would still be valid for a few seconds after rotation, so overlapping requests wouldn't drop. The tests show it's invalidated immediately, so I need a short grace window instead of relying on timing."},
+      {t:"10:07",type:"commit",tag:"commit b881d4f",msg:"add grace window for in-flight requests"},
+      {t:"10:35",type:"checkpoint",q:"Large diff detected — what changed?",a:"Pulled the rotation logic out of the request handler into its own module. It was getting tangled with the retry logic and I couldn't reason about either one separately."}
+    ]
+  },
+  "checkout-flow-cart-migration": {
+    name:"checkout-flow / cart-migration", signed:"19 Sep", events:9, checkpoints:3, span:"1h 55m",
+    desc:"Work log for this branch, recorded as it happened.",
+    log:[
+      {t:"14:02",type:"commit",tag:"commit 7cd21aa",msg:"migrate cart store to new schema"},
+      {t:"14:20",type:"checkpoint",q:"Why touch the pricing module here?",a:"The old cart schema stored price as a snapshot string, and the new one needs a live reference so totals stay in sync during migration."},
+      {t:"14:58",type:"test",tag:"test run · 12 passed / 12",msg:"cart_migration_spec"},
+      {t:"15:41",type:"commit",tag:"commit 0e4f18b",msg:"backfill script for legacy carts"}
+    ]
+  },
+  "ml-pipeline-feature-store": {
+    name:"ml-pipeline / feature-store", signed:"24 Sep", events:21, checkpoints:5, span:"3h 10m",
+    desc:"Work log for this branch, recorded as it happened.",
+    log:[
+      {t:"11:05",type:"commit",tag:"commit 9a12ce3",msg:"add feature versioning table"},
+      {t:"11:30",type:"checkpoint",q:"What's the versioning strategy?",a:"Each feature gets an incrementing version tied to the transform code hash, so a model can pin to an exact feature definition rather than a mutable name."},
+      {t:"12:15",type:"test",tag:"test run · 1 failed / 18",msg:"feature_store_integration"},
+      {t:"12:40",type:"commit",tag:"commit 44b7fd1",msg:"fix stale cache invalidation on schema bump"},
+      {t:"13:50",type:"checkpoint",q:"Why the extra cache layer?",a:"Recomputing features per request was too slow for the online path, so I added a short TTL cache keyed on the version hash from the earlier checkpoint."}
+    ]
+  }
+};
+
+function esc(s){return s.replace(/[&<>]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;"}[c]));}
+
+function repoCard(id, r){
+  return `<a class="rcard" href="#/verify/${id}">
+    <h3>${esc(r.name)}</h3>
+    <div class="meta">${r.events} events · ${r.checkpoints} checkpoints · ${r.span}</div>
+    <span class="pill">chain intact</span>
+  </a>`;
+}
+
+function renderHome(){
+  const featured = Object.entries(REPOS).slice(0,3).map(([id,r]) => repoCard(id,r)).join("");
+  return `
+  <header class="hero"><div class="wrap">
+    <h1>A project shows what was built. This shows how.</h1>
+    <p>Provenance is a background tool that quietly signs and timestamps a developer's real work as it happens — turning any GitHub project into one with a public, tamper-evident record of how it was built.</p>
+    <div class="stats">
+      <div class="stat"><b>87%</b><span>of recruiters weight technical skills in portfolios</span></div>
+      <div class="stat"><b>76%</b><span>say AI makes authenticity hard to judge</span></div>
+      <div class="stat"><b>0</b><span>extra steps for the developer — it runs quietly</span></div>
+    </div>
+    <form class="tryit" id="tryform">
+      <input type="text" placeholder="paste a GitHub repo URL to preview its log" id="tryinput">
+      <button class="btn" type="submit">Preview log</button>
+      <div class="status" id="trystatus"></div>
+    </form>
+  </div></header>
+
+  <section class="tinted"><div class="wrap">
+    <div class="kicker">Examples</div>
+    <div class="lede">Every project gets a public verification page.</div>
+    <div class="cards">${featured}</div>
+  </div></section>
+
+  <section><div class="wrap">
+    <div class="kicker">How it works</div>
+    <div class="lede">A lightweight IDE extension, opt-in per project. No workflow change required.</div>
+    <div class="steps">
+      <div class="step"><div class="n">01</div><h3>Capture</h3><p>Logs commits, commands, diffs, and test runs in the background, then asks one short question at natural checkpoints.</p></div>
+      <div class="step"><div class="n">02</div><h3>Verify</h3><p>Every entry is hashed to the one before it, so editing an old entry breaks the chain — tamper-evidence by construction.</p></div>
+      <div class="step"><div class="n">03</div><h3>Prove</h3><p>On push, the log is signed with the developer's own key and timestamped by a trusted outside service, then published to a page linked from the README.</p></div>
+    </div>
+  </div></section>`;
+}
+
+function renderExplore(){
+  const cards = Object.entries(REPOS).map(([id,r]) => repoCard(id,r)).join("");
+  return `<section><div class="wrap">
+    <div class="kicker">Explore</div>
+    <div class="lede">Verified projects</div>
+    <div class="searchbar"><input type="text" id="searchbox" placeholder="filter by repo name…"></div>
+    <div class="grid4" id="grid4">${cards}</div>
+  </div></section>`;
+}
+
+function logNode(e){
+  if(e.type === "checkpoint"){
+    return `<div class="tnode"><span class="ts mono">${e.t}</span><span class="tag checkpoint mono">checkpoint</span>
+      <details class="qa"><summary>${esc(e.q)}</summary><div class="a">${esc(e.a)}</div></details>
+    </div>`;
+  }
+  return `<div class="tnode ${e.type}"><span class="ts mono">${e.t}</span><span class="tag ${e.type} mono">${esc(e.tag)}</span>
+    <div class="msg">${esc(e.msg)}</div>
+  </div>`;
+}
+
+function renderDetail(id){
+  const r = REPOS[id];
+  if(!r){ return `<section><div class="wrap"><p>No verification log found for that project.</p><p style="margin-top:12px;"><a href="#/explore">← Back to explore</a></p></div></section>`; }
+  return `<section><div class="wrap">
+    <div class="crumbs"><a href="#/explore">Explore</a> / ${esc(r.name)}</div>
+    <div class="browser">
+      <div class="chrome"><div class="dots"><i></i><i></i><i></i></div><div class="urlbar mono">provenance.dev/${id}</div></div>
+      <div class="veri">
+        <div class="col-left">
+          <h3>${esc(r.name)}</h3>
+          <div class="desc">${esc(r.desc)}</div>
+          <div class="banner"><b>Chain intact.</b>No entries were edited after the fact.<div class="meta">signed with dev's GitHub key · timestamped ${r.signed}</div></div>
+          <div class="figs">
+            <div><b>${r.events}</b><span>logged events</span></div>
+            <div><b>${r.checkpoints}</b><span>checkpoint check-ins</span></div>
+            <div><b>${r.span}</b><span>active span</span></div>
+          </div>
+          <div class="actions">
+            <button type="button" id="copylink">Copy verification link</button>
+            <button type="button" id="showbadge">Add badge to README</button>
+          </div>
+          <div class="badgebox" id="badgebox">[![Verified with Provenance](https://provenance.dev/badge/${id}.svg)](https://provenance.dev/${id})</div>
+        </div>
+        <div class="col-right">
+          <div class="timeline">${r.log.map(logNode).join("")}</div>
+        </div>
+      </div>
+    </div>
+  </div></section>`;
+}
+
+function setActiveNav(hash){
+  document.querySelectorAll("#navlinks a").forEach(a=>{
+    const href = a.getAttribute("href");
+    a.classList.toggle("active", (href==="#/" && hash==="/") || (href==="#/explore" && (hash==="/explore" || hash.startsWith("/verify/"))));
+  });
+}
+
+function route(){
+  const hash = location.hash.replace(/^#/, "") || "/";
+  const app = document.getElementById("app");
+  let html;
+  if(hash === "/"){ html = renderHome(); }
+  else if(hash === "/explore"){ html = renderExplore(); }
+  else if(hash.startsWith("/verify/")){ html = renderDetail(hash.split("/verify/")[1]); }
+  else { html = `<section><div class="wrap"><p>Page not found.</p></div></section>`; }
+  app.innerHTML = html;
+  setActiveNav(hash);
+  window.scrollTo(0,0);
+  attachHandlers(hash);
+}
+
+function attachHandlers(hash){
+  if(hash === "/"){
+    const form = document.getElementById("tryform");
+    form.addEventListener("submit", ev=>{
+      ev.preventDefault();
+      const status = document.getElementById("trystatus");
+      status.textContent = "Analyzing repository…";
+      setTimeout(()=>{ location.hash = "#/verify/auth-service-session-refresh"; }, 500);
+    });
+  }
+  if(hash === "/explore"){
+    const box = document.getElementById("searchbox");
+    box.addEventListener("input", ()=>{
+      const q = box.value.toLowerCase();
+      document.querySelectorAll("#grid4 .rcard").forEach(c=>{
+        c.style.display = c.querySelector("h3").textContent.toLowerCase().includes(q) ? "" : "none";
+      });
+    });
+  }
+  if(hash.startsWith("/verify/")){
+    const copyBtn = document.getElementById("copylink");
+    if(copyBtn) copyBtn.addEventListener("click", ()=>{
+      const url = location.href;
+      navigator.clipboard && navigator.clipboard.writeText(url).catch(()=>{});
+      copyBtn.textContent = "Copied ✓";
+      setTimeout(()=>copyBtn.textContent="Copy verification link", 1600);
+    });
+    const badgeBtn = document.getElementById("showbadge");
+    const badgeBox = document.getElementById("badgebox");
+    if(badgeBtn) badgeBtn.addEventListener("click", ()=>{
+      badgeBox.classList.toggle("show");
+    });
+  }
+}
+
+window.addEventListener("hashchange", route);
+window.addEventListener("DOMContentLoaded", route);
+</script>
 </body>
 </html>
